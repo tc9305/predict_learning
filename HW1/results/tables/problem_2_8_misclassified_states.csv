@@ -1,0 +1,23 @@
+State,Obesity,Election_Result,State_Code,Predicted,Wrong
+California,21.5,D,CA,R,True
+Colorado,16.4,R,CO,D,True
+Connecticut,18.9,D,CT,R,True
+Delaware,22.5,D,DE,R,True
+DC,21.2,D,DC,R,True
+Hawaii,15.7,R,HI,D,True
+Illinois,22.9,D,IL,R,True
+Maine,21.3,D,ME,R,True
+Maryland,21.7,D,MD,R,True
+Massachusetts,17.8,D,MA,R,True
+Michigan,25.3,D,MI,R,True
+Minnesota,22.6,D,MN,R,True
+Montana,19.1,R,MT,D,True
+New Jersey,20.3,D,NJ,R,True
+New York,21.2,D,NY,R,True
+Oregon,21.0,D,OR,R,True
+Pennsylvania,24.0,D,PA,R,True
+Rhode Island,18.6,D,RI,R,True
+Utah,19.6,R,UT,D,True
+Washington,21.7,D,WA,R,True
+Wisconsin,21.9,D,WI,R,True
+Wyoming,20.1,R,WY,D,True

@@ -1,0 +1,52 @@
+State,Obesity,Election_Result,State_Code,Predicted,Wrong
+Alabama,22.6,R,AL,R,False
+Alaska,20.9,R,AK,R,False
+Arizona,14.9,R,AZ,R,False
+Arkansas,21.9,R,AR,R,False
+California,18.7,D,CA,R,True
+Colorado,14.5,R,CO,R,False
+Connecticut,16.0,D,CT,R,True
+Delaware,17.1,D,DE,D,False
+DC,20.1,D,DC,D,False
+Florida,18.4,R,FL,R,False
+Georgia,20.6,R,GA,R,False
+Hawaii,15.7,D,HI,D,False
+Idaho,18.4,R,ID,R,False
+Illinois,20.4,D,IL,R,True
+Indiana,20.5,R,IN,R,False
+Iowa,20.9,D,IA,R,True
+Kansas,19.1,R,KS,D,True
+Kentucky,21.7,R,KY,R,False
+Louisiana,22.6,R,LA,R,False
+Maine,18.9,D,ME,R,True
+Maryland,19.6,D,MD,D,False
+Massachusetts,15.3,D,MA,R,True
+Michigan,22.1,D,MI,R,True
+Minnesota,16.4,D,MN,D,False
+Mississippi,23.7,R,MS,R,False
+Missouri,21.4,R,MO,R,False
+Montana,15.6,R,MT,R,False
+Nebraska,20.1,R,NE,D,True
+Nevada,16.0,R,NV,R,False
+New Hampshire,16.1,R,NH,R,False
+New Jersey,17.0,D,NJ,D,False
+New Mexico,17.4,D,NM,D,False
+New York,17.1,D,NY,D,False
+North Carolina,20.9,R,NC,R,False
+North Dakota,20.5,R,ND,R,False
+Ohio,20.6,R,OH,R,False
+Oklahoma,20.1,R,OK,D,True
+Oregon,19.9,D,OR,D,False
+Pennsylvania,20.3,D,PA,R,True
+Rhode Island,16.9,D,RI,D,False
+South Carolina,21.1,R,SC,R,False
+South Dakota,18.4,R,SD,R,False
+Tennessee,20.9,R,TN,R,False
+Texas,21.7,R,TX,R,False
+Utah,17.3,R,UT,D,True
+Vermont,17.0,D,VT,D,False
+Virginia,18.7,R,VA,R,False
+Washington,18.4,D,WA,R,True
+West Virginia,23.9,R,WV,R,False
+Wisconsin,19.4,D,WI,D,False
+Wyoming,16.6,R,WY,D,True

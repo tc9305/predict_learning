@@ -2,6 +2,8 @@
 
 本報告依據 [英文正式報告](Homework1_Report_EN.pdf) 整理題目 2.7、2.8、2.11 與 2.12 的實驗設定、主要數值及解釋。
 
+**程式與資料：** [GitHub 儲存庫的 HW1 目錄](https://github.com/tc9305/predict_learning/tree/main/HW1)
+
 ## 摘要
 
 | 題目 | 方法 | 主要結果 |

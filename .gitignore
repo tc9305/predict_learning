@@ -3,3 +3,10 @@ __pycache__/
 .pytest_cache/
 tmp/
 .cache/
+.vscode/
+pytest-cache-files-*/
+*.pyc
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/

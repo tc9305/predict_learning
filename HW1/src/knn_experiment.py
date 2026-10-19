@@ -30,7 +30,8 @@ def select_knn(x, y):
                           'n_validation': 1, 'actual': y[i], 'predicted': predictions[i],
                           'wrong': bool(wrong[i])} for i in range(len(y)))
     table = pd.DataFrame(rows)
-    return int(table.loc[table.loocv_error.idxmin(), 'k']), table, pd.DataFrame(audit)
+    best_position = table['loocv_error'].to_numpy().argmin()
+    return int(table['k'].to_numpy()[best_position]), table, pd.DataFrame(audit)
 
 
 def run_knn(train, test, train_year, test_year, problem, tables, figures):

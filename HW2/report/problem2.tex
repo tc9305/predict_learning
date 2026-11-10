@@ -1,0 +1,129 @@
+% ============================================================
+% Problem 2 section of the combined HW2 report (Problems 1 + 2).
+% This is a fragment, included from HW2/report/main.tex via \input{problem2}.
+% Figure: p2_boundaries.png (found through \graphicspath{{../practice/}}).
+% All numbers come from HW2/practice/p2_mine.py; the 2003-12-31 prices are in
+% HW2/data/extra_2003-12-31.csv.
+% ============================================================
+
+\section*{Problem 2: Trading international mutual funds}
+
+\subsection*{Data and encoding}
+I use daily closing prices of the S\&P 500 (\texttt{\^{}GSPC}) and the Fidelity International Discovery fund
+(FIGRX) from Yahoo Finance, and the euro exchange rate (euros per US dollar) from the UBC Pacific Exchange Rate
+Service. Following the course preprocessing note, I keep the dates present in all three series: 243 trading days in
+2004 and 245 in 2005. Alignment removes nine 2004 days on which the UBC file has no quote, most of them Canadian
+holidays, and seven US market holidays on which it does.
+
+The inputs are today's percentage changes, $x_1$ for the S\&P 500 and $x_2$ for the exchange rate, each measured
+against the previous aligned day. The output $y$ is tomorrow's percentage change of FIGRX. I join the price series
+across years to compute the changes at the year boundaries. The output for December 31, 2004 uses the first aligned
+day of 2005 (January 4). The input for January 6, 2004, the first aligned day of that year, needs the close of
+December 31, 2003, which the provided files do not contain; I retrieved the three values from the same sources
+(S\&P 500 1111.92, FIGRX 23.92, 0.79386 euros per dollar). I obtain 243 training samples (January 6 to
+December 31, 2004) and 244 test samples (January 4 to December 29, 2005). The last day of 2005 has no next-day
+output.
+
+FIGRX closed unchanged on seven 2004 days. I drop those days when I fit the quadratic classifier and when I
+compute accuracy. The trading simulation keeps them: a zero change produces zero gain under either position.
+
+\subsection*{Classifiers}
+\paragraph{(a) Linear classifier.}
+I fit $t(\mathbf{x}) = w_0 + w_1 x_1 + w_2 x_2$ to the real-valued outputs by least squares and predict UP when
+$t(\mathbf{x}) > 0$. The 2004 data give
+\[
+  t(\mathbf{x}) = 0.0469 + 0.0844\,x_1 - 0.0073\,x_2 .
+\]
+The positive S\&P 500 coefficient fits the view that foreign markets follow the US market with a one-day lag. The
+exchange-rate coefficient is close to zero. With a positive intercept, the rule predicts DOWN after the S\&P 500
+falls by more than about 0.56\%, and it predicts UP on 79\% of training days.
+
+\paragraph{(b) Quadratic classifier.}
+I convert the outputs to class labels $y = \operatorname{sign}(y)$ and fit
+\[
+  g(\mathbf{x}, \mathbf{w}) = w_1 x_1 + w_2 x_2 + w_3 x_1^2 + w_4 x_2^2 + w_5 x_1 x_2 + w_0
+\]
+to the $\pm 1$ labels by least squares, then predict UP when $g > 0$. The assignment leaves the estimation method
+open; least squares keeps the two approaches comparable. The fitted coefficients are $w_0 = 0.1594$,
+$w_1 = 0.0787$, $w_2 = 0.1112$, $w_3 = -0.0606$, $w_4 = -0.1470$, and $w_5 = 0.1361$. Both squared terms are
+negative and the intercept is positive, so the boundary is an ellipse with the UP region inside. The model predicts
+UP on calm days and DOWN after large moves in either input.
+
+\begin{center}\small
+\begin{tabular}{lcc}
+\toprule
+Classifier & Training accuracy (2004) & Test accuracy (2005) \\
+\midrule
+Linear & 51.7\% & 57.1\% \\
+Quadratic & 57.2\% & 55.8\% \\
+Always UP & 52.5\% & 55.0\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The quadratic model gains 5.5 points of training accuracy over the linear one and loses 1.3 points on the test year,
+the overfitting pattern I saw in Problem 1. With about 240 days per year, one day moves accuracy by 0.4 points, and
+the standard error of an accuracy estimate is close to 3 points. Neither classifier beats the always-UP rule by more
+than that margin.
+
+\subsection*{Decision boundaries}
+Figure~\ref{fig:p2boundaries} plots both boundaries over the training and test data in the required
+$(-2\%, +2\%)$ range. The linear boundary runs close to vertical at $x_1 \approx -0.56\%$, because the exchange rate
+carries almost no weight. The quadratic ellipse tilts toward the upper right and extends past the plotted range. Its
+lower edge near $x_2 = -0.7\%$ wraps around a group of 2004 DOWN days that has no counterpart in 2005. In all four
+panels the UP and DOWN days overlap, and no boundary of either shape separates them.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.86\linewidth]{p2_boundaries.png}
+  \caption{Decision boundaries of the linear (top) and quadratic (bottom) classifiers over the 2004 training data
+           (left) and the 2005 test data (right). Shading shows the predicted class; markers show the actual
+           next-day FIGRX change.}
+  \label{fig:p2boundaries}
+\end{figure}
+
+The data give the ellipse little support. On 2005 days inside it, FIGRX rose the next day 56.6\% of the time,
+against 47.7\% outside. The outside group holds 44 days, so its standard error is about 7.5 points, and the gap
+falls within sampling error. In 2004 the same comparison gave 56.7\% and 41.5\%, a contrast the fit itself produced.
+
+\subsection*{Trading results}
+Each strategy holds FIGRX on days its classifier predicts UP and cash otherwise. Starting from \$1 million, I
+compound the daily returns over the 2005 test period. GAIN is the cumulative return at the end of the year, and
+EXPOSURE is the share of days invested in FIGRX.
+
+\begin{center}\small
+\begin{tabular}{lcc}
+\toprule
+Strategy & GAIN & EXPOSURE \\
+\midrule
+Linear & 21.81\% & 76.6\% \\
+Quadratic & 15.19\% & 82.0\% \\
+Buy-and-Hold & 14.92\% & 100.0\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Buy-and-Hold earns 14.92\%, from the January 4 close (27.55) to the December 30 close (31.66). The linear strategy
+earns 6.9 points more while staying in cash on 57 days. On those days FIGRX moved $-0.10\%$ on average, against
+$+0.11\%$ on the days the strategy held the fund. Accuracy counts each day the same; the gain depends on which days
+the strategy avoids. To judge luck, I drew 10{,}000 random strategies invested on the same 76.6\% of days. Their
+median gain is 11.2\%, and 3.1\% of them reach 21.81\% or more.
+
+\subsection*{Discussion}
+\paragraph{(a) Can this strategy be used in practice?}
+I would not trade my own money with it. The 2005 result rests on one test year, and I picked the better of two
+models after seeing both. Neither classifier beats the always-UP rule in accuracy by more than the sampling error,
+and the UP and DOWN days overlap across the input plane. The linear rule profits from the stale pricing of
+international funds, whose prices use foreign closes that have not yet reacted to the US market. After the 2003
+mutual-fund scandal, fund companies adopted fair-value pricing, and many restrict short-term trading or charge
+redemption fees, which would close this gap. The assignment also assumes zero transaction costs. The linear strategy
+switches position 89 times in 2005; at 0.1\% per switch, costs would take about 8.5\% and erase its 6.9-point lead.
+
+\paragraph{(b) VC-theoretical explanation.}
+Both models are small for the sample size. The linear classifier has $h = 3$ parameters and the quadratic one
+$h = 6$, so $p = h/n$ equals 0.012 and 0.025 with $n = 243$. At these values the VC factor of Eq.~(4.15) is 1.39 and
+1.56, compared with 20.2 at $p = 0.5$ and $n = 30$ in Problem 1, and the training error gives a usable estimate of
+the test error. Complexity control has little to correct here, which is why these methods skip it. The training
+accuracy itself sits near the level of random guessing (51.7\% and 57.2\%), and a VC bound built on that error
+promises no useful performance whatever complexity I choose. The weak link between today's inputs and tomorrow's
+FIGRX change limits both classifiers, and a larger or smaller model cannot repair it.

@@ -15,9 +15,13 @@ def make_data(target, n, rng):
     return x, y
 
 def design(x, dof):
-    """Columns: 1, cos(2*pi*1*x), ..., cos(2*pi*(dof-1)*x)."""
-    k = np.arange(dof)                      # [0, 1, ..., dof-1]
-    return np.cos(2 * np.pi * np.outer(x, k))
+    """Columns: 1, sin(1x)..sin(mx), cos(1x)..cos(mx), where dof = 2m + 1."""
+    m = (dof - 1) // 2
+    i = np.arange(1, m + 1)                 # [1, 2, ..., m]
+    return np.column_stack([np.ones(len(x)),
+                            np.sin(np.outer(x, i)),
+                            np.cos(np.outer(x, i))])
+
 
 
 def train_mse(x, y, dof):
@@ -29,9 +33,6 @@ def train_mse(x, y, dof):
 def r_fpe(p, n):
     return (1 + p) / (1 - p)
 
-def r_sc(p, n):
-    return 1 + np.log(n) * p / (1 - p)
-
 def r_gcv(p, n):
     return 1 / (1 - p) ** 2
 
@@ -41,11 +42,13 @@ def r_vc(p, n):
         return np.inf
     return 1 / (1 - np.sqrt(inner))
 
-PENALTIES = {"fpe": r_fpe, "sc": r_sc, "gcv": r_gcv, "vc": r_vc}
+PENALTIES = {"fpe": r_fpe, "gcv": r_gcv, "vc": r_vc}   # the methods compared in the textbook
 
 def loo_mse(x, y, dof):
     """Exact leave-one-out MSE via the hat-matrix shortcut."""
     X = design(x, dof)
+    if np.linalg.matrix_rank(X) < X.shape[1]:   # shortcut needs full column rank
+        return loo_mse_brute(x, y, dof)
     w, *_ = np.linalg.lstsq(X, y, rcond=None)
     residual = y - X @ w
     H = X @ np.linalg.pinv(X)     # hat matrix, n x n
@@ -69,7 +72,7 @@ def loo_mse_brute(x, y, dof):
 def select_dof(x, y, max_dof):
     """Return {method: chosen DoF} using penalized training MSE."""
     n = len(x)
-    dofs = np.arange(1, max_dof + 1)
+    dofs = np.arange(1, max_dof + 1, 2)     # 2m + 1 = 1, 3, 5, ...
     emp = np.array([train_mse(x, y, d) for d in dofs])
     picks = {}
     for name, r in PENALTIES.items():
@@ -95,9 +98,9 @@ def test_risk(x, y, dof, target, x_test):
 
 def run(target, n, max_dof, reps=300, seed=0):
     rng = np.random.default_rng(seed)
-    true_dof = 1 if target == "noise" else 3
+    true_dof = 1 if target == "noise" else None   # sine^2 has no exact DoF here
     x_test = rng.uniform(0, 1, size=2000)
-    methods = ["fpe", "sc", "gcv", "vc", "cv"]
+    methods = ["fpe", "gcv", "vc", "cv"]
     chosen = {m: [] for m in methods}
     risks = {m: [] for m in methods}
     for _ in range(reps):
@@ -108,14 +111,18 @@ def run(target, n, max_dof, reps=300, seed=0):
             risks[m].append(test_risk(x, y, d, target, x_test))
     print(f"--- {target}, n = {n} ---")
     for m in methods:
-        correct = np.mean(np.array(chosen[m]) == true_dof)
+        dof = np.array(chosen[m])
         p50, p95 = np.percentile(risks[m], [50, 95])
-        print(f"{m:>4}: correct {correct:6.1%}   risk median {p50:.4f}   p95 {p95:.4f}")
+        if true_dof is None:
+            info = f"DoF median {np.median(dof):4.0f}  p95 {np.percentile(dof, 95):4.0f}"
+        else:
+            info = f"correct {np.mean(dof == true_dof):6.1%}"
+        print(f"{m:>4}: {info}   risk median {p50:.4f}   p95 {p95:.4g}")
     return chosen, risks
 
 def plot_setting(n, max_dof, reps=300):
     targets = {"noise": ("Pure Gaussian noise, $\\sigma=1$", 1),
-               "sine2": ("Sine-squared target, $\\sigma=0.2$", 3)}
+               "sine2": ("Sine-squared target, $\\sigma=0.2$", None)}
     fig, axes = plt.subplots(2, 2, figsize=(10, 6.5), sharex=True)
     for col, (target, (title, true_dof)) in enumerate(targets.items()):
         chosen, risks = run(target, n, max_dof, reps)
@@ -125,7 +132,8 @@ def plot_setting(n, max_dof, reps=300):
         axes[0, col].set_yscale("log")
         axes[0, col].set_title(title)
         axes[1, col].boxplot([chosen[m] for m in methods], **box)
-        axes[1, col].axhline(true_dof, ls="--", color="gray", lw=1)
+        if true_dof is not None:
+            axes[1, col].axhline(true_dof, ls="--", color="gray", lw=1)
         axes[1, col].set_ylim(0, max_dof + 1)
     axes[0, 0].set_ylabel("Risk (MSE)")
     axes[1, 0].set_ylabel("Degrees of freedom")

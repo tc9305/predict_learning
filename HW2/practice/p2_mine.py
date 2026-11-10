@@ -122,6 +122,19 @@ def luck_check(invested, reps=10_000, seed=0):
     print(f"random median {np.median(gains):.1f}%, share >= {target:.2f}%: {np.mean(gains >= target):.1%}")
     print("position switches:", int(np.sum(invested[1:] != invested[:-1])))
 
+# ---- 6. VC bound for classification, Eq. (4.11) with eta from Eq. (4.12) ----
+def vc_bound_classification(train_error, h, n):
+    eta = min(4 / np.sqrt(n), 1)
+    phi = np.sqrt((h * (np.log(2 * n / h) + 1) - np.log(eta / 4)) / n)
+    return phi, train_error + phi
+
+def vc_table():
+    n = int((train["y"] != 0).sum())               # days used for the 0/1 training error
+    print(f"{'model':10}{'h':>3}{'n/h':>7}{'R_emp':>8}{'Phi':>8}{'bound':>8}")
+    for name, wt, feat, h in [("linear", w, design, 3), ("quadratic", v, quad_design, 6)]:
+        r_emp = 1 - accuracy_with(train, wt, feat)
+        phi, bound = vc_bound_classification(r_emp, h, n)
+        print(f"{name:10}{h:3d}{n / h:7.1f}{r_emp:8.3f}{phi:8.3f}{bound:8.3f}")
 
 
 if __name__ == "__main__":
@@ -134,4 +147,6 @@ if __name__ == "__main__":
     plot_all()
     trading_table()
     luck_check(design(test) @ w > 0)
+    vc_table()
+
 

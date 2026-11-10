@@ -45,9 +45,9 @@ I convert the outputs to class labels $y = \operatorname{sign}(y)$ and fit
 \]
 to the $\pm 1$ labels by least squares, then predict UP when $g > 0$. The assignment leaves the estimation method
 open; least squares keeps the two approaches comparable. The fitted coefficients are $w_0 = 0.1594$,
-$w_1 = 0.0787$, $w_2 = 0.1112$, $w_3 = -0.0606$, $w_4 = -0.1470$, and $w_5 = 0.1361$. Both squared terms are
-negative and the intercept is positive, so the boundary is an ellipse with the UP region inside. The model predicts
-UP on calm days and DOWN after large moves in either input.
+$w_1 = 0.0787$, $w_2 = 0.1112$, $w_3 = -0.0606$, $w_4 = -0.1470$, and $w_5 = 0.1361$. The quadratic part is
+negative definite ($w_3 < 0$ and $w_3 w_4 - w_5^2/4 = 0.0043 > 0$) and the intercept is positive, so the boundary is
+an ellipse with the UP region inside. The model predicts UP on calm days and DOWN after large moves in either input.
 
 \begin{center}\small
 \begin{tabular}{lcc}
@@ -62,8 +62,9 @@ Always UP & 52.5\% & 55.0\% \\
 \end{center}
 
 The quadratic model gains 5.5 points of training accuracy over the linear one and loses 1.3 points on the test year,
-the overfitting pattern I saw in Problem 1. With about 240 days per year, one day moves accuracy by 0.4 points, and
-the standard error of an accuracy estimate is close to 3 points. Neither classifier beats the always-UP rule by more
+a pattern consistent with overfitting. The two models also differ in their fitting target (real-valued changes versus
+$\pm 1$ labels), so this comparison mixes complexity with the choice of target. With about 240 days per year, one day
+moves accuracy by 0.4 points, and the standard error of an accuracy estimate is close to 3 points. Neither classifier beats the always-UP rule by more
 than that margin.
 
 \subsection*{Decision boundaries}
@@ -73,19 +74,20 @@ carries almost no weight. The quadratic ellipse tilts toward the upper right and
 lower edge near $x_2 = -0.7\%$ wraps around a group of 2004 DOWN days that has no counterpart in 2005. In all four
 panels the UP and DOWN days overlap, and no boundary of either shape separates them.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.86\linewidth]{p2_boundaries.png}
+  \includegraphics[width=0.8\linewidth]{p2_boundaries.png}
   \caption{Decision boundaries of the linear (top) and quadratic (bottom) classifiers over the 2004 training data
            (left) and the 2005 test data (right). Shading shows the predicted class; markers show the actual
            next-day FIGRX change.}
   \label{fig:p2boundaries}
 \end{figure}
 
-The data give the ellipse little support. On 2005 days inside it, FIGRX rose the next day 56.6\% of the time,
-against 47.7\% outside. The outside group holds 44 days, so its standard error is about 7.5 points, and the gap
-falls within sampling error. In 2004 the same comparison gave 56.7\% and 41.5\%, a contrast the fit itself produced.
+On 2005 days inside the ellipse, FIGRX rose the next day 56.6\% of the time, against 47.7\% outside. The outside
+group holds 44 days, so its standard error is about 7.5 points, and the gap falls within sampling error. On the 2004
+data used to fit the ellipse, the same comparison gave 56.7\% and 41.5\%.
 
+\Needspace{14\baselineskip}
 \subsection*{Trading results}
 Each strategy holds FIGRX on days its classifier predicts UP and cash otherwise. Starting from \$1 million, I
 compound the daily returns over the 2005 test period. GAIN is the cumulative return at the end of the year, and
@@ -105,25 +107,62 @@ Buy-and-Hold & 14.92\% & 100.0\% \\
 
 Buy-and-Hold earns 14.92\%, from the January 4 close (27.55) to the December 30 close (31.66). The linear strategy
 earns 6.9 points more while staying in cash on 57 days. On those days FIGRX moved $-0.10\%$ on average, against
-$+0.11\%$ on the days the strategy held the fund. Accuracy counts each day the same; the gain depends on which days
-the strategy avoids. To judge luck, I drew 10{,}000 random strategies invested on the same 76.6\% of days. Their
+$+0.11\%$ on the days the strategy held the fund. The gain depends on the size of each day's move, so a rule with a
+small accuracy edge can earn more by skipping days with large declines. To judge luck, I drew 10{,}000 random strategies invested on the same 76.6\% of days. Their
 median gain is 11.2\%, and 3.1\% of them reach 21.81\% or more.
 
 \subsection*{Discussion}
 \paragraph{(a) Can this strategy be used in practice?}
 I would not trade my own money with it. The 2005 result rests on one test year, and I picked the better of two
 models after seeing both. Neither classifier beats the always-UP rule in accuracy by more than the sampling error,
-and the UP and DOWN days overlap across the input plane. The linear rule profits from the stale pricing of
-international funds, whose prices use foreign closes that have not yet reacted to the US market. After the 2003
-mutual-fund scandal, fund companies adopted fair-value pricing, and many restrict short-term trading or charge
-redemption fees, which would close this gap. The assignment also assumes zero transaction costs. The linear strategy
-switches position 89 times in 2005; at 0.1\% per switch, costs would take about 8.5\% and erase its 6.9-point lead.
+and the UP and DOWN days overlap across the input plane. A possible source of the linear rule's profit is the stale
+pricing of international funds, whose prices use foreign closes that have not yet reacted to the US market; my
+experiment does not test this mechanism. After the 2003 mutual-fund scandal, fund companies adopted fair-value
+pricing, and many restrict short-term trading or charge redemption fees, which would close such a gap. The assignment
+also assumes zero transaction costs. The linear strategy switches position 89 times in 2005. If each switch costs
+0.1\% of the account, its gain falls from 21.81\% to 11.43\%, below the 14.92\% of Buy-and-Hold.
 
 \paragraph{(b) VC-theoretical explanation.}
-Both models are small for the sample size. The linear classifier has $h = 3$ parameters and the quadratic one
-$h = 6$, so $p = h/n$ equals 0.012 and 0.025 with $n = 243$. At these values the VC factor of Eq.~(4.15) is 1.39 and
-1.56, compared with 20.2 at $p = 0.5$ and $n = 30$ in Problem 1, and the training error gives a usable estimate of
-the test error. Complexity control has little to correct here, which is why these methods skip it. The training
-accuracy itself sits near the level of random guessing (51.7\% and 57.2\%), and a VC bound built on that error
-promises no useful performance whatever complexity I choose. The weak link between today's inputs and tomorrow's
-FIGRX change limits both classifiers, and a larger or smaller model cannot repair it.
+Problem 2 is a classification task with 0/1 loss, so the relevant result is the VC bound for classification. It
+adds a confidence term $\Phi$ to the training error rate,
+\[
+  R(\omega) \le R_{\text{emp}}(\omega) + \Phi, \qquad
+  \Phi = \sqrt{\frac{h\bigl(\ln(2n/h) + 1\bigr) - \ln(\eta/4)}{n}},
+\]
+and holds with probability at least $1 - \eta$. I set $\eta = \min(4/\sqrt{n}, 1)$, the textbook's practical rule,
+which raises the confidence level as the sample grows. The multiplicative VC penalization factor used in Problem 1
+belongs to regression. Each classifier is linear in its parameters, so its VC-dimension equals the parameter count:
+$h = 3$ for the linear rule and $h = 6$ for the quadratic rule. A VC bound holds for every function in the model
+set, so it also covers my least-squares classifiers, which do not minimize the 0/1 training error.
+
+\begin{center}\small
+\begin{tabular}{lcccccc}
+\toprule
+Classifier & $h$ & $n$ & $n/h$ & $R_{\text{emp}}$ & $\Phi$ & Upper bound on $R$ \\
+\midrule
+Linear & 3 & 236 & 78.7 & 0.483 & 0.298 & 0.781 \\
+Quadratic & 6 & 236 & 39.3 & 0.428 & 0.385 & 0.813 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The 0/1 training error uses the 236 days with a nonzero FIGRX change. With $n = 236$, the rule gives
+$\eta = 4/\sqrt{236} \approx 0.26$, so the bounds hold with probability at least $1 - \eta \approx 74\%$, below the
+95\% level common in statistics.
+
+The textbook calls a sample small when $n/h$ is below about 15; in that regime $\Phi$ stays large, and model
+selection has to match the complexity to the data. The
+assignment fixes two low-capacity model sets in advance and fits each once, without searching over model sizes. Both
+classifiers lie well above the small-sample threshold ($n/h$ of 78.7 and 39.3), which gives intuitive support for this
+choice: further complexity control has less to gain here than in the small samples of Problem 1. This argument is a
+heuristic, and a large $n/h$ leaves room for some benefit from complexity control.
+
+Despite the large $n/h$, both upper bounds (0.781 and 0.813) exceed the 0.5 error of random guessing, so the theory
+certifies no useful classifier from these 236 days. The training error rates sit near 0.5 before adding $\Phi$, and $\Phi$ needs a
+large $n$ to become small, since its numerator also grows with $\ln n$. With $h = 3$ and the same rule for $\eta$,
+$\Phi$ falls to about 0.06 only near $n = 10{,}000$ trading days.
+
+The bound also assumes independent samples from one fixed distribution. Daily returns can depend on earlier days,
+and the 2004 and 2005 markets need not share a distribution, so the bound gives a rough guide to the 2005 test error
+at best. My results show that these two classifiers, with these two inputs, did not deliver a robust predictive
+advantage in 2005; other models and other inputs remain untested.

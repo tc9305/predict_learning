@@ -9,54 +9,72 @@
 \section*{Problem 1: Model selection for trigonometric polynomial regression}
 
 \subsection*{Experimental setup}
-I follow the procedure of Section~4.4 and compare analytic model selection criteria for univariate regression
-with trigonometric polynomials
+I follow the textbook's protocol for comparing model selection methods: generate many random training sets, let
+each method choose a model complexity, and record the selected degrees of freedom (DoF) and the prediction risk of
+the chosen model on a large independent test set. The approximating functions are the trigonometric polynomials
+defined in the course lecture notes,
 \[
-  f_m(x) = w_0 + \sum_{k=1}^{m} w_k \cos(2\pi k x), \qquad \text{DoF} = m + 1,
+  f_m(x) = w_0 + \sum_{i=1}^{m} \bigl[ v_i \sin(ix) + w_i \cos(ix) \bigr], \qquad \text{DoF} = 2m + 1,
 \]
-fitted by ordinary least squares. I draw inputs from $x \sim U[0,1]$ and use two data sets:
+fitted by least squares. For a model that is linear in its parameters, the VC-dimension equals the number of free
+parameters, so here $h = \text{DoF} = 2m + 1$. I draw inputs from $x \sim U[0,1]$ and use the two data sets of the
+textbook experiment:
 \begin{itemize}
-  \item \textbf{Pure noise:} $y \sim N(0, 1)$. The true function is $f(x) = 0$, so the correct model is a constant (DoF $= 1$).
-  \item \textbf{Sine-squared:} $y = \sin^2(2\pi x) + \varepsilon$, $\varepsilon \sim N(0, 0.2^2)$.
-        Since $\sin^2(2\pi x) = \tfrac12 - \tfrac12\cos(4\pi x)$, the target belongs to the model with $m = 2$, and the correct DoF is 3.
+  \item \textbf{Pure noise:} $y \sim N(0, 1)$. The true function is $f(x) = 0$, so the best model is a constant
+        (DoF $= 1$).
+  \item \textbf{Sine-squared:} $y = \sin^2(2\pi x) + \varepsilon$, $\varepsilon \sim N(0, 0.2^2)$. The target
+        equals $\tfrac12 - \tfrac12\cos(4\pi x)$, and its frequency $4\pi \approx 12.6$ matches none of the integer
+        frequencies $i$ in the basis. Every model in the family approximates the target, so this data set has no
+        single correct DoF. The textbook's version of this experiment, which uses algebraic polynomials, has the same
+        property.
 \end{itemize}
-I run 300 independent realizations for $n = 30$ (candidate DoF $1$--$20$) and $n = 100$ (candidate DoF $1$--$25$).
-In each realization, every method selects a DoF. I refit the model with that DoF and measure its \emph{prediction
-risk} as the mean squared error between the fitted model and the \emph{noise-free} target on 2000 independent test
-points. No model can predict the noise, so this risk measures the distance between the selected model and the truth.
+I run 300 independent realizations for $n = 30$ (candidate DoF $1, 3, \ldots, 19$) and $n = 100$ (candidate DoF
+$1, 3, \ldots, 25$). In each realization, every method selects a DoF. I refit the model with that DoF and measure its
+\emph{prediction risk} as the mean squared error between the fitted model and the \emph{noise-free} target on 2000
+independent test points. No model can predict the noise, so this risk measures the distance between the selected
+model and the truth.
+
+On $[0, 1]$ the functions $\sin(ix)$ and $\cos(ix)$ with small $i$ have similar shapes, and the design matrix becomes
+ill-conditioned as $m$ grows. For $n = 30$, the matrices with DoF 17 and 19 had numerical rank below their column
+count in all 200 random samples I checked. In those cases the least-squares routine returns the minimum-norm solution.
+I keep the nominal DoF $= 2m + 1$ for the penalization factors.
 
 \subsection*{Model selection methods}
 Training error falls as complexity grows, so it cannot guide model selection by itself. In one sine-squared sample
-with $n = 30$, the training MSE fell from 0.107 at DoF $= 1$ to 0.0067 at DoF $= 20$, below the noise variance
-$\sigma^2 = 0.04$. Each analytic method multiplies the training error $R_{\text{emp}}$ by a penalization factor
-$r(p)$, where $p = \text{DoF}/n$, and selects the DoF that minimizes $r(p)\,R_{\text{emp}}$:
+with $n = 30$, the training MSE fell from 0.107 at DoF $= 1$ to 0.019 at DoF $= 7$ and 0.0092 at DoF $= 19$, below
+the noise variance $\sigma^2 = 0.04$. I compare the four methods of the textbook experiment. Three of them multiply
+the training error $R_{\text{emp}}$ by a penalization factor $r(p)$, where $p = \text{DoF}/n$, and select the DoF that
+minimizes $r(p)\,R_{\text{emp}}$:
 \begin{center}\small
-\begin{tabular}{lll}
+\begin{tabular}{ll}
 \toprule
-Method & Penalization factor $r(p)$ & Reference \\
+Method & Penalization factor $r(p)$ \\
 \midrule
-Final prediction error (fpe) & $(1+p)/(1-p)$ & Eq.~(2.11) \\
-Schwartz criterion (sc) & $1 + (\ln n)\, p/(1-p)$ & Eq.~(2.12) \\
-Generalized cross-validation (gcv) & $(1-p)^{-2}$ & Eq.~(2.13) \\
-VC bound (vc) & $\bigl(1 - \sqrt{p - p\ln p + \ln n/(2n)}\bigr)_+^{-1}$ & Eq.~(4.15) \\
+Akaike's final prediction error (fpe) & $(1+p)/(1-p)$ \\
+Generalized cross-validation (gcv) & $(1-p)^{-2}$ \\
+VC bound for regression (vc) & $\bigl(1 - \sqrt{p - p\ln p + \ln n/(2n)}\bigr)_+^{-1}$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 For vc, I set the factor to infinity when the term under the square root reaches 1, which excludes that model.
-At $p = 0.1$ the four factors lie between 1.2 and 1.5. At $p = 0.5$ with $n = 30$ they spread out: fpe gives 3.0,
-gcv 4.0, sc 4.4, and vc 20.2.
+With $n = 30$ and $p = 0.1$, fpe gives 1.22, gcv 1.24, and vc 2.65, so vc charges about twice as much as the other
+two. At $p = 0.5$ the gap widens: fpe gives 3.0, gcv 4.0, and vc 20.2.
 
-The fifth method, leave-one-out cross-validation (cv), estimates prediction risk from held-out data. I compute the
+The fourth method, leave-one-out cross-validation (cv), estimates prediction risk from held-out data. I compute the
 leave-one-out error from a single fit with the leverage formula $e_i/(1 - h_{ii})$, where $e_i$ is the ordinary
-residual and $h_{ii}$ the $i$-th diagonal entry of the hat matrix. In my checks it matched the result of $n$
-explicit refits to four decimal places.
+residual and $h_{ii}$ the $i$-th diagonal entry of the hat matrix. The formula assumes that deleting one sample leaves
+the fitted subspace unchanged. With this ill-conditioned basis, deleting a sample can change the numerical rank, and
+rounding errors grow. For one sample with DoF $= 19$ and rank 17, the formula gave 74.2 while 30 explicit refits gave
+0.54; at DoF $= 15$, with full rank, the two differed in the third decimal place (0.4951 vs.\ 0.4944). To avoid these
+errors, I refit $n$ times whenever the matrix is rank deficient. As a check, I reran every experiment with explicit
+refits for all candidate DoF, and the cv results did not change.
 
 \subsection*{Results}
-Figures~\ref{fig:p1n30} and~\ref{fig:p1n100} present the results in the style of Figs.~4.10--4.11. Each box spans
+Figures~\ref{fig:p1n30} and~\ref{fig:p1n100} present the results in the textbook's box-plot format. Each box spans
 the 25th to 75th percentiles with a line at the median, and the whiskers reach the 5th and 95th percentiles. The risk
-panels use a logarithmic scale, and a dashed line in the DoF panels marks the correct DoF.
+panels use a logarithmic scale, and a dashed line in the pure-noise DoF panels marks the best DoF.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=0.92\linewidth]{p1_n30.png}
   \caption{Model selection results for $n = 30$ (300 realizations). Top: prediction risk (log scale);
@@ -64,7 +82,7 @@ panels use a logarithmic scale, and a dashed line in the DoF panels marks the co
   \label{fig:p1n30}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=0.92\linewidth]{p1_n100.png}
   \caption{Model selection results for $n = 100$ (300 realizations), same layout as Figure~\ref{fig:p1n30}.}
@@ -72,44 +90,68 @@ panels use a logarithmic scale, and a dashed line in the DoF panels marks the co
 \end{figure}
 
 \begin{center}\small
-\begin{tabular}{l rr rr rr rr}
+\begin{tabular}{l rrr rrr}
 \toprule
- & \multicolumn{4}{c}{$n = 30$} & \multicolumn{4}{c}{$n = 100$} \\
-\cmidrule(lr){2-5}\cmidrule(lr){6-9}
- & \multicolumn{2}{c}{Pure noise} & \multicolumn{2}{c}{Sine-squared}
- & \multicolumn{2}{c}{Pure noise} & \multicolumn{2}{c}{Sine-squared} \\
-Method & correct & risk p95 & correct & risk p95 & correct & risk p95 & correct & risk p95 \\
+ & \multicolumn{3}{c}{Pure noise, $n = 30$} & \multicolumn{3}{c}{Pure noise, $n = 100$} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Method & DoF $= 1$ & risk p50 & risk p95 & DoF $= 1$ & risk p50 & risk p95 \\
 \midrule
-fpe & 53.0\% & 35.7   & 46.3\% & 4.54   & 73.0\%  & 0.197  & 68.7\% & 0.0087 \\
-sc  & 82.7\% & 0.708  & 76.0\% & 0.0821 & 95.3\%  & 0.0568 & 97.0\% & 0.0035 \\
-gcv & 69.0\% & 0.831  & 67.7\% & 0.0672 & 74.0\%  & 0.134  & 73.0\% & 0.0063 \\
-vc  & 97.7\% & 0.170  & 92.3\% & 0.0149 & 100.0\% & 0.0381 & 99.3\% & 0.0032 \\
-cv  & 64.7\% & 0.945  & 64.7\% & 0.0402 & 74.7\%  & 0.132  & 74.3\% & 0.0060 \\
+fpe & 61.3\% & 0.0600 & 169.1  & 78.3\%  & 0.0075 & 0.155 \\
+gcv & 73.0\% & 0.0335 & 2.82   & 81.0\%  & 0.0074 & 0.130 \\
+vc  & 99.0\% & 0.0165 & 0.144  & 100.0\% & 0.0049 & 0.0381 \\
+cv  & 76.0\% & 0.0317 & 0.492  & 79.3\%  & 0.0077 & 0.152 \\
+\bottomrule
+\end{tabular}
+
+\medskip
+\begin{tabular}{l rrr rrr}
+\toprule
+ & \multicolumn{3}{c}{Sine-squared, $n = 30$} & \multicolumn{3}{c}{Sine-squared, $n = 100$} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Method & DoF p50 (p95) & risk p50 & risk p95 & DoF p50 (p95) & risk p50 & risk p95 \\
+\midrule
+fpe & 7 (15) & 0.0303 & 413.3  & 9 (15) & 0.0052 & 0.0192 \\
+gcv & 7 (13) & 0.0249 & 3.41   & 9 (13) & 0.0050 & 0.0179 \\
+vc  & 7 (9)  & 0.0210 & 0.232  & 7 (9)  & 0.0051 & 0.0108 \\
+cv  & 7 (9)  & 0.0265 & 0.390  & 9 (15) & 0.0050 & 0.0195 \\
 \bottomrule
 \end{tabular}
 
 \smallskip
-\emph{correct}: share of the 300 realizations that selected the true DoF; \emph{risk p95}: 95th percentile of the prediction risk.
+\emph{DoF $= 1$}: share of the 300 realizations that selected the constant model; \emph{p50}, \emph{p95}: median and
+95th percentile over the 300 realizations.
 \end{center}
 
 \paragraph{Small samples ($n = 30$).}
-The share of correct selections follows the strength of the penalty: vc (97.7\% for pure noise, 92.3\% for
-sine-squared) $>$ sc $>$ gcv $>$ cv $>$ fpe (53.0\%, 46.3\%). For sine-squared, fpe is the one method with a wrong
-median DoF (4 instead of 3). Its light penalty lets a large drop in training error win: in one sine-squared sample,
-fpe chose DoF $= 18$ while the other four methods chose DoF $= 3$. The tails of the risk distribution show the
-largest gaps. For pure noise, the 95th-percentile risk of fpe (35.7) is about 200 times that of vc (0.17), while
-their medians differ by a factor of six (0.103 vs.\ 0.017). In its worst 5\% of realizations, fpe picked models with
-DoF 11--20, which swing far from zero between the training points; the worst vc selections had DoF 1 or 2.
+For pure noise, the share of realizations that selected the constant model follows the strength of the penalty:
+vc (99.0\%) $>$ cv (76.0\%) $>$ gcv (73.0\%) $>$ fpe (61.3\%). The 95th-percentile risk of fpe (169.1) is about 1200
+times that of vc (0.144), while their medians differ by a factor of 3.6. In its worst 5\% of realizations, fpe picked
+models with DoF 11--19, which swing far from zero between the training points; 12 of the 15 worst vc selections had
+DoF 1. For sine-squared, all four methods have a median DoF of 7 and the methods separate in the upper tail: the
+95th-percentile DoF is 15 for fpe, 13 for gcv, and 9 for vc and cv. The 95th-percentile risk of fpe reaches 413,
+against 0.23 for vc.
+
+These extreme risks could reflect statistical overfitting, numerical error in an ill-conditioned fit, or both. To
+separate them, I refitted the 15 worst fpe realizations of each data set at $n = 30$ with two SVD-based solvers and
+one QR-based solver. Whenever the design matrix had full rank, the three risks agreed within 5\%, even with condition
+numbers near $10^{14}$. The solvers disagreed only on a few rank-deficient fits with DoF 17 or 19, which make up 1--3\%
+of the fpe selections. The tail therefore reflects overfitting with an ill-conditioned basis, and numerical error
+affects only those few fits.
 
 \paragraph{Effect of sample size ($n = 100$).}
-With $n = 100$, every method improves. vc selects the correct DoF in 100\% (pure noise) and 99.3\% (sine-squared) of
-realizations, and sc in 95.3\% and 97.0\%. fpe, gcv, and cv level off at 70--75\%. For small $p$, these three
-criteria charge about $2\sigma^2/n$ for each extra parameter, and a spurious term beats that charge with a probability
-that does not shrink as $n$ grows. The sc charge, about $(\ln n)\,\sigma^2/n$, grows with $n$. The 95th-percentile
-risk of fpe falls from 35.7 to 0.197 as its 95th-percentile DoF drops to 9 (pure noise) and 12 (sine-squared).
+With $n = 100$, every method improves. For pure noise, vc selects the constant model in all 300 realizations, while
+fpe, gcv, and cv level off at 78--81\%. For small $p$, these three criteria charge about $2\sigma^2/n$ for each extra
+parameter, and a spurious term beats that charge with a probability that does not shrink as $n$ grows. The VC factor
+charges twice as much at the same $p$ (2.47 against 1.22 for fpe at $p = 0.1$ with $n = 100$). For sine-squared, the median
+DoF rises to 9 for fpe, gcv, and cv, and the larger sample supports a closer approximation of the target. The four
+median risks lie between 0.0050 and 0.0052, and vc has the lowest 95th-percentile risk (0.0108). The textbook makes
+the same observation for its algebraic-polynomial experiment with 100 samples: most methods perform well, and vc keeps
+the lowest variability.
 
 \subsection*{Conclusion}
-Across both data sets and both sample sizes, the VC penalization chose the correct model most often and had the
-lowest 95th-percentile risk. Its lead is widest at $n = 30$, where a wrong choice costs the most. The five methods
-have similar median risks and separate in the worst 5\% of realizations, so a fair comparison needs the full risk
-distribution.
+Across both data sets and both sample sizes, the VC penalization had the lowest 95th-percentile risk. Its lead is
+widest at $n = 30$. The methods differ more in the upper tail than at the median: for pure noise at $n = 30$ the
+medians of fpe and vc differ by a factor of 3.6 and their 95th percentiles by about 1200, and for sine-squared at
+$n = 100$ the four medians lie between 0.0050 and 0.0052. For this reason I rank the methods by their
+95th-percentile risk, which the textbook calls the \emph{guaranteed} prediction risk and uses to compare model
+selection methods.

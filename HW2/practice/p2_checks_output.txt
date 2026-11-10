@@ -1,0 +1,27 @@
+Data alignment, 2004
+  common trading days: 243
+  stock days without a UBC quote: 9
+  UBC days without stock prices:  7
+  training samples: 243, test samples: 244
+
+Linear classifier
+  DOWN threshold on x1 when x2 = 0: -0.56%
+  share of training days predicted UP: 79.4%
+
+Quadratic classifier
+  w3 = -0.0606 (< 0), w3*w4 - w5^2/4 = 0.0043 (> 0 means negative definite)
+  2004: next-day UP rate inside the ellipse 56.7% (171 days), outside 41.5% (65 days)
+  2005: next-day UP rate inside the ellipse 56.6% (196 days), outside 47.7% (44 days)
+
+Trading, 2005
+  linear: cash days 57, mean FIGRX change on cash days -0.10%, on invested days +0.11%
+  linear: 89 switches, gain 21.81% without costs, 11.43% with 0.1% per switch
+  buy-and-hold gain: 14.92%
+
+Sampling error and VC confidence term
+  one day in 240 test days = 0.42 accuracy points; standard error at 50% accuracy = 3.2 points
+  standard error for the 44 days outside the ellipse = 7.5 points
+  confidence level 1 - eta with n = 236: 73.96%
+  Phi for h = 3 at n = 1000: 0.161
+  Phi for h = 3 at n = 5000: 0.079
+  Phi for h = 3 at n = 10000: 0.058

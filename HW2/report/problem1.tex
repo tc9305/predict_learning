@@ -35,8 +35,8 @@ independent test points. No model can predict the noise, so this risk measures t
 model and the truth.
 
 On $[0, 1]$ the functions $\sin(ix)$ and $\cos(ix)$ with small $i$ have similar shapes, and the design matrix becomes
-ill-conditioned as $m$ grows. For $n = 30$, the matrices with DoF 17 and 19 had numerical rank below their column
-count in all 200 random samples I checked. In those cases the least-squares routine returns the minimum-norm solution.
+ill-conditioned as $m$ grows. In 200 random samples with $n = 30$, the matrices with DoF 17 and 19 had numerical rank
+below their column count every time, and the matrix with DoF 15 in 8 of the 200 (Appendix, Check~1). In those cases the least-squares routine returns the minimum-norm solution.
 I keep the nominal DoF $= 2m + 1$ for the penalization factors.
 
 \subsection*{Model selection methods}
@@ -57,7 +57,7 @@ VC bound for regression (vc) & $\bigl(1 - \sqrt{p - p\ln p + \ln n/(2n)}\bigr)_+
 \end{tabular}
 \end{center}
 For vc, I set the factor to infinity when the term under the square root reaches 1, which excludes that model.
-With $n = 30$ and $p = 0.1$, fpe gives 1.22, gcv 1.24, and vc 2.65, so vc charges about twice as much as the other
+With $n = 30$ and $p = 0.1$, fpe gives 1.22, gcv 1.23, and vc 2.65, so vc charges about twice as much as the other
 two. At $p = 0.5$ the gap widens: fpe gives 3.0, gcv 4.0, and vc 20.2.
 
 The fourth method, leave-one-out cross-validation (cv), estimates prediction risk from held-out data. I compute the
@@ -66,8 +66,9 @@ residual and $h_{ii}$ the $i$-th diagonal entry of the hat matrix. The formula a
 the fitted subspace unchanged. With this ill-conditioned basis, deleting a sample can change the numerical rank, and
 rounding errors grow. For one sample with DoF $= 19$ and rank 17, the formula gave 74.2 while 30 explicit refits gave
 0.54; at DoF $= 15$, with full rank, the two differed in the third decimal place (0.4951 vs.\ 0.4944). To avoid these
-errors, I refit $n$ times whenever the matrix is rank deficient. As a check, I reran every experiment with explicit
-refits for all candidate DoF, and the cv results did not change.
+errors, I refit $n$ times whenever the matrix is rank deficient. As a check, I repeated the cv selection with explicit
+refits for every candidate DoF: in each of the four settings, cv chose the same DoF in all 300 realizations (Appendix,
+Check~3).
 
 \subsection*{Results}
 Figures~\ref{fig:p1n30} and~\ref{fig:p1n100} present the results in the textbook's box-plot format. Each box spans
@@ -133,10 +134,11 @@ against 0.23 for vc.
 
 These extreme risks could reflect statistical overfitting, numerical error in an ill-conditioned fit, or both. To
 separate them, I refitted the 15 worst fpe realizations of each data set at $n = 30$ with two SVD-based solvers and
-one QR-based solver. Whenever the design matrix had full rank, the three risks agreed within 5\%, even with condition
-numbers near $10^{14}$. The solvers disagreed only on a few rank-deficient fits with DoF 17 or 19, which make up 1--3\%
-of the fpe selections. The tail therefore reflects overfitting with an ill-conditioned basis, and numerical error
-affects only those few fits.
+one QR-based solver (Appendix, Check~4). For the 22 full-rank fits among these 30, the three risks agreed within
+0.5\%, even with condition numbers near $10^{14}$. Rank-deficient fits make up 4 of the 300 fpe selections for pure
+noise and 9 for sine-squared. Among the 8 such fits in the two worst-15 lists, six agreed within 4.4\%, and two
+sine-squared fits differed by 34\% and by a factor of 15. The tail therefore reflects overfitting with an
+ill-conditioned basis, and numerical error changes the risk of a few rank-deficient fits.
 
 \paragraph{Effect of sample size ($n = 100$).}
 With $n = 100$, every method improves. For pure noise, vc selects the constant model in all 300 realizations, while

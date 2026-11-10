@@ -41,10 +41,16 @@ VC 懲罰在四種設定的第 95 百分位風險都最低。純雜訊時，vc �
 cd HW2
 ..\.venv\Scripts\python.exe practice\p1_mine.py
 ..\.venv\Scripts\python.exe -m practice.p2_mine
+..\.venv\Scripts\python.exe -m practice.p1_checks
+..\.venv\Scripts\python.exe -m practice.p2_checks
 ```
 
-- `practice\p1_mine.py`：跑 Problem 1 的 300 次實驗，輸出選對比例與風險，並產生 `p1_n30.png`、`p1_n100.png`。
-- `practice.p2_mine`：印出兩個分類器的係數、準確率、交易結果與隨機策略比較，並產生 `p2_boundaries.png`。這個檔案需用 `-m` 以模組方式執行，才能載入 `src/data_loader.py`。
+- `practice\p1_mine.py`：跑 Problem 1 的 300 次實驗，輸出選對比例與風險，並產生 `p1_n30.png`、`p1_n100.png`（約 30 秒）。
+- `practice.p2_mine`：印出兩個分類器的係數、準確率、交易結果、隨機策略比較與分類的 VC 界，並產生 `p2_boundaries.png`。這個檔案需用 `-m` 以模組方式執行，才能載入 `src/data_loader.py`。
+- `practice.p1_checks`：Problem 1 的數值驗證（設計矩陣的秩、留一法公式與逐次重擬合、逐次比對 cv 的選擇、三種 LAPACK 求解器），以及報告引用的其他數字。輸出存成 `p1_checks_output.txt`（約 2 分鐘）。
+- `practice.p2_checks`：Problem 2 報告引用、但 `p2_mine` 沒有印出的數字（對齊天數、橢圓判定、交易成本、抽樣誤差等）。輸出存成 `p2_checks_output.txt`。
+
+報告附錄列出各項驗證的設定（亂數種子、秩的判定門檻、求解器名稱、套件版本）。
 
 報告以 XeLaTeX 編譯，需編譯兩次以產生圖表編號：
 
@@ -73,6 +79,8 @@ xelatex main.tex
 | [src/data_loader.py](src/data_loader.py) | 讀取並依日期對齊三份價格資料 |
 | [practice/p1_mine.py](practice/p1_mine.py) | Problem 1 程式 |
 | [practice/p2_mine.py](practice/p2_mine.py) | Problem 2 程式 |
+| [practice/p1_checks.py](practice/p1_checks.py)、[p1_checks_output.txt](practice/p1_checks_output.txt) | Problem 1 數值驗證與輸出紀錄 |
+| [practice/p2_checks.py](practice/p2_checks.py)、[p2_checks_output.txt](practice/p2_checks_output.txt) | Problem 2 補充數字與輸出紀錄 |
 | [practice/](practice/) | 報告使用的三張圖 |
-| [report/](report/) | 報告原始檔（`main.tex`、`problem1.tex`、`problem2.tex`）與 [main.pdf](report/main.pdf) |
+| [report/](report/) | 報告原始檔（`main.tex`、`problem1.tex`、`problem2.tex`、`appendix.tex`）與 [main.pdf](report/main.pdf) |
 | [requirements.txt](requirements.txt) | 固定版本的 Python 套件 |

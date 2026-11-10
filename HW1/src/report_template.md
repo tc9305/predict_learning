@@ -1,6 +1,6 @@
 # 預測學習作業一：風險最小化與模型選擇
 
-本報告依據 [英文正式報告](Homework1_Report_EN.pdf) 整理題目 2.7、2.8、2.11 與 2.12 的實驗設定、主要數值及解釋。
+本報告依據 [英文正式報告](report/Homework1_Report_EN.pdf) 整理題目 2.7、2.8、2.11 與 2.12 的實驗設定、主要數值及解釋。
 
 **程式與資料：** [GitHub 儲存庫的 HW1 目錄](https://github.com/tc9305/predict_learning/tree/main/HW1)
 

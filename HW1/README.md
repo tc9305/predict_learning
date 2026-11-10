@@ -1,6 +1,6 @@
 # 預測學習作業一
 
-本專案重現風險最小化與模型選擇的四道習題。完整分析見 [中文報告](report.md)；[英文正式報告](Homework1_Report_EN.pdf)保留原始撰寫版本，[作業題目](Homework1.pdf)提供題意。
+本專案重現風險最小化與模型選擇的四道習題。完整分析見 [中文報告](report.md)；[英文正式報告](report/Homework1_Report_EN.pdf)保留原始撰寫版本，[作業題目](Instructions/Homework1.pdf)提供題意。
 
 ## 題目與結果速覽
 
@@ -44,7 +44,9 @@ python -m venv .venv
 | [results/tables/](results/tables/) | LOOCV、模型選擇、逐筆預測、混淆矩陣與五折結果 |
 | [results/figures/](results/figures/) | 15 張實驗圖 |
 | [tests/](tests/) | 資料、選參、驗證切分與產物一致性的自動測試 |
-| [report.md](report.md) | 可閱讀的中文實驗報告 |
+| [report.md](report.md) | 可閱讀的中文實驗報告（由 `main.py` 重新產生） |
+| [report/](report/) | 英文正式報告（`Homework1_Report_EN.tex` 與 PDF，以 XeLaTeX 編譯） |
+| [Instructions/](Instructions/) | 作業題目 |
 
 ## 重現與閱讀提醒
 

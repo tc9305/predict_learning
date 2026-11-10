@@ -1,6 +1,6 @@
 # 預測學習作業二：VC-theory and its Applications
 
-本作業包含兩題：以三角多項式迴歸比較模型選擇方法（Problem 1），以及用分類器擇時交易國際共同基金 FIGRX（Problem 2）。完整分析見 [英文報告](report/main.pdf)，題目見 [HW2.pdf](HW2.pdf)。
+本作業包含兩題：以三角多項式迴歸比較模型選擇方法（Problem 1），以及用分類器擇時交易國際共同基金 FIGRX（Problem 2）。完整分析見 [英文報告](report/main.pdf)，題目見 [HW2.pdf](Instructions/HW2.pdf)。
 
 ## 題目與結果速覽
 
@@ -53,7 +53,7 @@ xelatex main.tex
 ## 資料處理
 
 - 價格資料：S&P 500（`^GSPC`）與 FIGRX 取自 Yahoo Finance，歐元匯率（每 1 美元兌換的歐元）取自 UBC Pacific Exchange Rate Service。
-- 依 [前處理說明](Data%20Preprocessing%20for%20Homework%202.pdf)，只保留三份資料都有的日期：2004 年 243 天、2005 年 245 天。
+- 依 [前處理說明](Instructions/Data%20Preprocessing%20for%20Homework%202.pdf)，只保留三份資料都有的日期：2004 年 243 天、2005 年 245 天。
 - 每日漲跌以前一個對齊交易日為基準。程式把各年價格接成連續序列再計算，所以 2004 年最後一天的隔日漲跌取自 2005 年第一個交易日。
 - 2004 年第一個交易日（1 月 6 日）需要 2003 年 12 月 31 日的價格，存放在 [data/extra_2003-12-31.csv](data/extra_2003-12-31.csv)。
 - FIGRX 漲跌為 0 的 7 天：訓練二次分類器與計算準確率時排除；交易模擬保留。
@@ -62,9 +62,9 @@ xelatex main.tex
 
 | 位置 | 用途 |
 | --- | --- |
-| [HW2.pdf](HW2.pdf) | 作業題目 |
-| [section2_4.pdf](section2_4.pdf)、[section4_4.pdf](section4_4.pdf) | 課本章節：懲罰因子、VC 界與實驗流程 |
-| [Data Preprocessing for Homework 2.pdf](Data%20Preprocessing%20for%20Homework%202.pdf) | 資料前處理說明 |
+| [HW2.pdf](Instructions/HW2.pdf) | 作業題目 |
+| [section2_4.pdf](Instructions/section2_4.pdf)、[section4_4.pdf](Instructions/section4_4.pdf) | 課本章節：懲罰因子、VC 界與實驗流程 |
+| [Data Preprocessing for Homework 2.pdf](Instructions/Data%20Preprocessing%20for%20Homework%202.pdf) | 資料前處理說明 |
 | [data/](data/) | 2004–2005 年三份價格資料與 2003/12/31 補充資料 |
 | [src/data_loader.py](src/data_loader.py) | 讀取並依日期對齊三份價格資料 |
 | [practice/p1_mine.py](practice/p1_mine.py) | Problem 1 程式 |

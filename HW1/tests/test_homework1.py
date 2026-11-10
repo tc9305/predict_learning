@@ -179,6 +179,8 @@ def test_artifact_metrics_and_report_consistency():
     assert len(list((ROOT/'results/figures').glob('*.png'))) == 15
     import re
     for relative in re.findall(r'\]\(([^)]+)\)', report):
+        if relative.startswith(('http://', 'https://')):
+            continue  # web links are not local files
         assert (ROOT/relative).exists(), relative
 
 

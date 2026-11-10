@@ -17,16 +17,15 @@
 ├─ course/                      # 課程大綱與講義 PDF
 ├─ HW1/
 │  ├─ README.md                # 作業說明與結果速覽
-│  ├─ Homework1.pdf            # 作業題目
-│  ├─ Homework1_Report_EN.pdf  # 英文報告
-│  ├─ report.md                # 中文報告
+│  ├─ Instructions/            # 作業題目 Homework1.pdf
+│  ├─ report/                  # 英文報告（.tex 與 PDF）
+│  ├─ report.md                # 中文報告（由 main.py 產生）
 │  ├─ main.py                  # 四題實驗的執行入口
 │  ├─ requirements.txt
 │  ├─ data/  src/  results/  tests/
 ├─ HW2/
 │  ├─ README.md                # 作業說明與結果速覽
-│  ├─ HW2.pdf                  # 作業題目
-│  ├─ section2_4.pdf, section4_4.pdf, Data Preprocessing for Homework 2.pdf
+│  ├─ Instructions/            # 作業題目 HW2.pdf、課本章節、資料前處理說明
 │  ├─ requirements.txt
 │  ├─ data/                    # GSPC、FIGRX、EURUSD 2004–2005 收盤價，及 2003/12/31 補充資料
 │  ├─ src/data_loader.py       # 讀取並對齊三份價格資料
@@ -45,7 +44,7 @@
 
 ## HW1：Risk Minimization and Model Selection
 
-[作業說明](HW1/README.md)介紹四題的重點，[中文報告](HW1/report.md)記錄實驗方法、數值與限制，[英文報告](HW1/Homework1_Report_EN.pdf)為正式版本。
+[作業說明](HW1/README.md)介紹四題的重點，[中文報告](HW1/report.md)記錄實驗方法、數值與限制，[英文報告](HW1/report/Homework1_Report_EN.pdf)為正式版本。
 
 ## HW2：VC-theory and its Applications
 
@@ -103,7 +102,7 @@ xelatex main.tex
 
 ## 注意事項
 
-- [course/](course/) 存放課程大綱與講義；各作業的題目 PDF 放在各自的資料夾。
+- [course/](course/) 存放課程大綱與講義；各作業的題目 PDF 放在各自的 `Instructions/`，報告放在 `report/`。
 - 原始資料與實驗輸出保留在版本庫，方便直接閱讀與比對結果。
 - HW2 的 `HW2/data/extra_2003-12-31.csv` 是 2003 年最後一個交易日的三個收盤價（Yahoo Finance、UBC Pacific Exchange Rate Service），用來計算 2004 年第一筆樣本的漲跌。
 - `.venv/`、`__pycache__/`、`.pytest_cache/` 與 LaTeX 編譯暫存檔由 [.gitignore](.gitignore) 排除。
